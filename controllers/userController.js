@@ -29,7 +29,6 @@ exports.authentication = async (req, res) => {
         if (userExist){
             const match = await bcrypt.compare(password, userExist.password)
             if(match){
-                console.log("hu")
                 if(userExist.verified){
                 res.status(200).json({
                     status: "Success",
@@ -77,7 +76,7 @@ exports.authentication = async (req, res) => {
 }
 const sendOTPVerificationEmail = async ({email}, res) => {
     try{
-
+        await UserOTPVerfication.deleteMany({email});
         const otp =`${Math.floor(1000 + Math.random() * 9000)}`;
           const salt = await bcrypt.genSalt(10);
           const secureOTP = await bcrypt.hash(otp, salt);
@@ -175,6 +174,56 @@ exports.resendOTP = async (req, res) =>{
         res.json({
         status: "FAILED",
         message: error.message
+        })
+    }
+}
+
+exports.forgotPassword = async (req, res) =>{
+    try{
+        const {email} = req.body;
+        if(!email){
+            res.status(502).json({
+                status: "FAILED",
+                message: "Email is required"
+            })
+        }
+        else{
+            await UserOTPVerfication.deleteMany({email});
+            sendOTPVerificationEmail(userExist, res);
+        }
+    }
+    catch(err){
+        res.json({
+            status: "FAILED",
+            message: err.message
+        })
+    }
+}
+
+exports.resetPassword = async (req, res) =>{
+    try{
+        const {email, password} =  req.body;
+        const emailExist = await UserOTPVerfication.find({email});
+        if(emailExist){
+            res.json({
+                status: "FAILED",
+                message: "user email not verified"
+            })
+        }
+        else{
+            const salt = await bcrypt.genSalt(10);
+            const securePassword = await bcrypt.hash(password, salt);
+            const updateUser = await User.findOneAndUpdate({email},{password: securePassword});
+            res.json({
+                status: "Success",
+                message: "User password updated successfully"
+            })
+        }
+    }
+    catch(err){
+        res.json({
+            status : "FAILED",
+            message: err.message
         })
     }
 }
