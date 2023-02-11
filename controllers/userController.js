@@ -23,9 +23,7 @@ const UserOTPVerification = require('../models/userOTPVerification');
 exports.authentication = async (req, res) => {
     try {
         const {email, password} = req.body;
-        console.log(req.body)
         const userExist = await User.findOne({email});
-        console.log(userExist)
         if (userExist){
             const match = await bcrypt.compare(password, userExist.password)
             if(match){
@@ -140,11 +138,11 @@ exports.verifyOTP = async (req, res) =>{
                     }
                     else{
                         //success
-                        await User.updateOne({email}, {verified: true});
-                        UserOTPVerification.deleteMany({email});
+                        const user = await User.updateOne({email}, {verified: true});
+                        await UserOTPVerification.deleteMany({email});
                         res.json({
                             status: "Verified",
-                            message: "User email verified successfully"
+                            user: user
                         })
                     }
                 }

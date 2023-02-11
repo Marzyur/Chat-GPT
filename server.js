@@ -12,9 +12,9 @@ app.use(
 );
 
 const userRoutes = require("./routes/userRoutes");
-
+const chatRoutes = require("./routes/chatRoutes");
 app.use("/api/user", userRoutes)
-
+app.use("/api/chat", chatRoutes)
 connectDB();
 
 const port  = process.env.PORT || 4000;
