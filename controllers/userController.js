@@ -2,22 +2,8 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/userModel');
 const UserOTPVerfication = require('../models/userOTPVerification')
 const { sendMail } = require("../middleware/sendMail");
-const { MongoAWSError } = require('mongodb');
 const UserOTPVerification = require('../models/userOTPVerification');
-// const passport = require('passport')
-// const GoogleStrategy = require('passport-google-oauth20').Strategy;
-
-// passport.use(new GoogleStrategy({
-//     clientID: GOOGLE_CLIENT_ID,
-//     clientSecret: GOOGLE_CLIENT_SECRET,
-//     callbackURL: "http://www.example.com/auth/google/callback"
-//   },
-//   function(accessToken, refreshToken, profile, cb) {
-//     User.findOrCreate({ googleId: profile.id }, function (err, user) {
-//       return cb(err, user);
-//     });
-//   }
-// ));
+const { findOne } = require('../models/userModel');
 
 
 exports.authentication = async (req, res) => {
@@ -138,7 +124,8 @@ exports.verifyOTP = async (req, res) =>{
                     }
                     else{
                         //success
-                        const user = await User.updateOne({email}, {verified: true});
+                        await User.updateOne({email}, {verified: true});
+                        const user = await User.findOne({email});
                         await UserOTPVerification.deleteMany({email});
                         res.json({
                             status: "Verified",

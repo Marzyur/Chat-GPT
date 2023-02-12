@@ -2,7 +2,7 @@ const {Configuration, OpenAIApi } = require("openai");
 const OPENAI_API_KEY = "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"
 exports.chatgpt = async (req, res) => {
     const {
-      // api_key, 
+    // api_key, 
     //     organization_key,
     //     model,
     //     prompt,
